@@ -41,18 +41,22 @@ Add startup file (for instance: `App_Start/SystemWebpackConfiguration.cs`) to co
 		public static class SystemWebpackConfiguration {
 			public static void Configure() {
 				WebpackSupport.Enable(new WebpackOptions {
-					HotModuleReplacement = true
+					HotModuleReplacement = true // Set to true if you're going to use hot module replacement
 				});
 			}
 		}
 	}
+
+Other options you can pass are the same as [ASP.NET Core `WebpackDevMiddlewareOptions`](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.spaservices.webpack.webpackdevmiddlewareoptions?view=aspnetcore-2.1
+).
 
 Modify your web.config:
 
 	<system.webServer>
 		<handlers>
 		  <!-- These handlers are required so the Webpack HTTP module can capture these requests. An alternative would be to use
-			   system.webServer/modules@runManagedModulesForAllRequests but you might not want to use that for your project
+			   system.webServer/modules@runManagedModulesForAllRequests but you might not want to use that for your project.
+			   If you have runManagedModulesForAllRequests set to "true", you can leave this part out.
            
 			   By mapping these paths to the built-in StaticFileHandler we force that managed modules are run for these requests.
 		   -->
@@ -63,6 +67,7 @@ Modify your web.config:
 		</handlers>
 	</system.webServer>
 	<location path="__webpack_hmr">
+		<!-- Leave this part out if you're not going to use Hot Module Replacement -->
 		<system.web>
 		  <httpRuntime executionTimeout="3600" enableKernelOutputCache="false"/>
 		</system.web>
