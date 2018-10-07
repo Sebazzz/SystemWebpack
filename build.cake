@@ -145,7 +145,7 @@ Task("Run-Webpack")
 Task("Build")
     .IsDependentOn("Restore-NuGet-Packages")
     .Does(() => {
-        DotNetCoreBuild(dotNetSdkProjectFile);
+        DotNetCoreBuild(dotNetSdkProjectFile, new DotNetCoreBuildSettings {Configuration = configuration});
 });
 
 Task("Publish")
@@ -167,7 +167,7 @@ Task("NuGet-Pack")
 	.IsDependentOn("Rebuild")
 	.Description("Packs up a NuGet package")
 	.Does(() => {
-		DotNetCorePack(dotNetSdkProjectFile);
+		DotNetCorePack(dotNetSdkProjectFile, new DotNetCorePackSettings {Configuration = configuration});
 	});
 	
 Task("AppVeyor-Test")

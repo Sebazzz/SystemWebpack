@@ -7,9 +7,11 @@
     <Product>Webpack dev server support for System.Web</Product>
     <Description>Allows you to use the Webpack dev server and hot module reloading system in classic System.Web projects.</Description>
     <Copyright>Sebastiaan Dammann - Damsteen.nl 2018</Copyright>
+    <Title>Webpack dev server and hot module replacement support for System.Web / ASP.NET projects</Title>
+    <IncludeSource>True</IncludeSource>
     <PackageLicenseUrl>https://raw.githubusercontent.com/Sebazzz/SystemWebpack/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/Sebazzz/SystemWebpack</PackageProjectUrl>
-    <PackageIconUrl>https://raw.githubusercontent.com/Sebazzz/SystemWebpack/master/nuget/NUnitTestOrdering.png</PackageIconUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/Sebazzz/SystemWebpack/master/nuget/SystemWebpack.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/Sebazzz/SystemWebpack</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <BaseOutputPath>..\..\build\</BaseOutputPath>
@@ -26,6 +28,8 @@
 
     <!-- Optional: Include the PDB in the built .nupkg -->
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <PackageTags>webpack asp.net system.web</PackageTags>
+    <PackageReleaseNotes>Initial version</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
