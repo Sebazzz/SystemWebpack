@@ -18,7 +18,6 @@ namespace SystemWebpackTestApp {
     public static class SystemWebpackConfiguration {
         public static void Configure() {
             WebpackSupport.Enable(new WebpackOptions {
-                BuildPath = "/build",
                 HotModuleReplacement =   true
             });
         }

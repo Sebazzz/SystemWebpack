@@ -13,6 +13,8 @@
     <RepositoryUrl>https://github.com/Sebazzz/SystemWebpack</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <BaseOutputPath>..\..\build\</BaseOutputPath>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Version>1.0.0-beta1</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,6 +29,7 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All"/>
   </ItemGroup>
 
   <ItemGroup>

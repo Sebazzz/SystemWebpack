@@ -22,8 +22,12 @@ namespace SystemWebpack.Core {
             WebpackApplication.Activate();
         }
 
-        public void Init(HttpApplication context) {
-            WebpackApplication.Initialize(context);
+        public void Init(HttpApplication app) {
+            if (!app.Context.IsDebuggingEnabled) {
+                return;
+            }
+
+            WebpackApplication.Initialize(app);
         }
 
         public void Dispose() {

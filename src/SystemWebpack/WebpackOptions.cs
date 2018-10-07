@@ -8,7 +8,6 @@
 //  Project         : SystemWebpack
 // ******************************************************************************
 namespace SystemWebpack {
-    using System;
     using System.Collections.Generic;
 
     /// <summary>
@@ -59,17 +58,5 @@ namespace SystemWebpack {
         ///     configuration is exported as a function.
         /// </summary>
         public object EnvParam { get; set; }
-
-        /// <summary>
-        /// Specifies the public path where the build artifacts are outputted. Mandatory.
-        /// </summary>
-        public string BuildPath { get; set; }
-
-
-        internal void Validate() {
-            if (String.IsNullOrEmpty(this.BuildPath)) {
-                throw new WebpackOptionsValidationException($"Validation error in {nameof(WebpackOptions)}: Property '{nameof(this.BuildPath)}' must be set");
-            }
-        }
     }
 }

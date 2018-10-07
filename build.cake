@@ -16,7 +16,6 @@ var assemblyInfoFile = Directory($"./src/{baseName}/Properties") + File("Assembl
 var dotCoverResultFile = buildDir + File("CoverageResults.dcvr");
 var nuspecPath = File($"./nuget/{baseName}.nuspec");
 var testResultsFile = buildDir + File("SystemWebpack.xml");
-var mainAssemblyVersion = (string) null;
 var nodeEnv = configuration == "Release" ? "production" : "development";
 var testProjectPath = Directory("./src/SystemWebpackTestApp");
 
@@ -98,6 +97,8 @@ Task("Check-Yarn-Version")
 Task("Restore-NuGet-Packages")
     .Does(() => {
     NuGetRestore($"./{baseName}.sln");
+
+	DotNetCoreRestore($"./src/{baseName}/");
 });
 
 Task("Set-NodeEnvironment")
@@ -165,24 +166,8 @@ Task("Test")
 		});
 });
 
-Task("NuGet-Git-UpdateAssemblyInfo")
-    .Does(() =>  {
-    GitVersion(); // TODO: use this for nuspec
-});
-
-Task("NuGet-Get-Assembly-Version")
-	.IsDependentOn("NuGet-Git-UpdateAssemblyInfo")
-	.Does(() => {
-		mainAssemblyVersion = ParseAssemblyInfo(assemblyInfoFile).AssemblyInformationalVersion;
-		
-		if (mainAssemblyVersion == null){
-			throw new CakeException($"Unable to find version for assembly via {assemblyInfoFile}");
-		}
-	});
-
 Task("NuGet-Pack")
 	.IsDependentOn("Rebuild")
-	.IsDependentOn("NuGet-Get-Assembly-Version")
 	.Description("Packs up a NuGet package")
 	.Does(() => {
 		MSBuild($"./{baseName}.sln", settings => 
@@ -219,7 +204,7 @@ Task("AppVeyor")
 Task("None");
 
 Task("Default")
-    .IsDependentOn("Test");
+    .IsDependentOn("Rebuild");
 
 //////////////////////////////////////////////////////////////////////
 // EXECUTION
