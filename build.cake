@@ -18,6 +18,7 @@ var nuspecPath = File($"./nuget/{baseName}.nuspec");
 var testResultsFile = buildDir + File("SystemWebpack.xml");
 var nodeEnv = configuration == "Release" ? "production" : "development";
 var testProjectPath = Directory("./src/SystemWebpackTestApp");
+var dotNetSdkProjectFile = $"./src/{baseName}/{baseName}.csproj";
 
 //////////////////////////////////////////////////////////////////////
 // TASKS
@@ -98,7 +99,7 @@ Task("Restore-NuGet-Packages")
     .Does(() => {
     NuGetRestore($"./{baseName}.sln");
 
-	DotNetCoreRestore($"./src/{baseName}/");
+	DotNetCoreRestore(dotNetSdkProjectFile);
 });
 
 Task("Set-NodeEnvironment")
@@ -144,11 +145,7 @@ Task("Run-Webpack")
 Task("Build")
     .IsDependentOn("Restore-NuGet-Packages")
     .Does(() => {
-        MSBuild($"./{baseName}.sln", settings => 
-					SetDefaultMSBuildSettings(settings)
-					.SetConfiguration(configuration)
-                    .SetVerbosity(verbosity)
-                    );
+        DotNetCoreBuild(dotNetSdkProjectFile);
 });
 
 Task("Publish")
@@ -170,11 +167,7 @@ Task("NuGet-Pack")
 	.IsDependentOn("Rebuild")
 	.Description("Packs up a NuGet package")
 	.Does(() => {
-		MSBuild($"./{baseName}.sln", settings => 
-					SetDefaultMSBuildSettings(settings)
-                    .SetVerbosity(verbosity)
-					.WithTarget("Pack")
-                    );
+		DotNetCorePack(dotNetSdkProjectFile);
 	});
 	
 Task("AppVeyor-Test")
@@ -205,6 +198,10 @@ Task("None");
 
 Task("Default")
     .IsDependentOn("Rebuild");
+	
+Task("Pack")
+    .IsDependentOn("NuGet-Pack");
+
 
 //////////////////////////////////////////////////////////////////////
 // EXECUTION
