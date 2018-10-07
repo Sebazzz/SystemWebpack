@@ -28,6 +28,23 @@ Ensure you got the following node packages installed in your web project `packag
 Install the package the package [from NuGet](https://www.nuget.org/packages/SystemWebpack):
 
     Add-Package SystemWebpack
+	Add-Package WebActivatorEx
+
+Add startup file (for instance: `App_Start/SystemWebpackConfiguration.cs`) to configure the library:
+
+	[assembly: PreApplicationStartMethod(typeof(MyNamespace.SystemWebpackConfiguration), nameof(MyNamespace.SystemWebpackConfiguration.Configure))]
+
+	namespace MyNamespace {
+		using SystemWebpack;
+
+		public static class SystemWebpackConfiguration {
+			public static void Configure() {
+				WebpackSupport.Enable(new WebpackOptions {
+					HotModuleReplacement = true
+				});
+			}
+		}
+	}
 
 Modify your web.config:
 

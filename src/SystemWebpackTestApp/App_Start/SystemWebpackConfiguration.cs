@@ -18,7 +18,7 @@ namespace SystemWebpackTestApp {
     public static class SystemWebpackConfiguration {
         public static void Configure() {
             WebpackSupport.Enable(new WebpackOptions {
-                HotModuleReplacement =   true
+                HotModuleReplacement = true
             });
         }
     }
