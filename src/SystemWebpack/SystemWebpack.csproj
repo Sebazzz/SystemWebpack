@@ -14,4 +14,23 @@
     <RepositoryType>git</RepositoryType>
     <BaseOutputPath>..\..\build\</BaseOutputPath>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Content\Node\entrypoint-http.js" />
+    <None Remove="Content\Node\webpack-dev-middleware.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Node\entrypoint-http.js" />
+    <EmbeddedResource Include="Content\Node\webpack-dev-middleware.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Web" />
+  </ItemGroup>
 </Project>

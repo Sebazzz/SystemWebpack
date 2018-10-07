@@ -72,9 +72,10 @@
     <Content Include="webpack.config.prod.js" />
   </ItemGroup>
   <ItemGroup>
-	<Content Include="build\**\*.*" />
+    <Content Include="build\**\*.*" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_Start\SystemWebpackConfiguration.cs" />
     <Compile Include="Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -88,9 +89,18 @@
     <PackageReference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform">
       <Version>2.0.1</Version>
     </PackageReference>
+    <PackageReference Include="WebActivatorEx">
+      <Version>2.2.0</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="package.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SystemWebpack\SystemWebpack.csproj">
+      <Project>{100a1678-c356-4dcf-9a49-180fa2835dae}</Project>
+      <Name>SystemWebpack</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
