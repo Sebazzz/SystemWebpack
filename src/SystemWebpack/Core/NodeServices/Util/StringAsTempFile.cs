@@ -1,10 +1,12 @@
 ﻿// ******************************************************************************
 //  © 2018 Sebastiaan Dammann | damsteen.nl
 // 
+//      Some code is Copyright Microsoft and licensed under the  MIT license.
+//      See: https://github.com/aspnet/JavaScriptServices
+// 
 //  File:           : StringAsTempFile.cs
 //  Project         : SystemWebpack
 // ******************************************************************************
-
 namespace SystemWebpack.Core.NodeServices.Util {
     using System;
     using System.IO;

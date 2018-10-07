@@ -1,6 +1,9 @@
 ﻿// ******************************************************************************
 //  © 2018 Sebastiaan Dammann | damsteen.nl
 // 
+//      Some code is Copyright Microsoft and licensed under the  MIT license.
+//      See: https://github.com/aspnet/JavaScriptServices
+// 
 //  File:           : SystemWebpackConfiguration.cs
 //  Project         : SystemWebpackTestApp
 // ******************************************************************************

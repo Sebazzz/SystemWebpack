@@ -1,5 +1,14 @@
-﻿using System.Reflection;
-using System.Runtime.CompilerServices;
+﻿// ******************************************************************************
+//  © 2018 Sebastiaan Dammann | damsteen.nl
+// 
+//      Some code is Copyright Microsoft and licensed under the  MIT license.
+//      See: https://github.com/aspnet/JavaScriptServices
+// 
+//  File:           : AssemblyInfo.cs
+//  Project         : SystemWebpackTestApp
+// ******************************************************************************
+
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 

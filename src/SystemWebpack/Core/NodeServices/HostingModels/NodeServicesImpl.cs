@@ -1,8 +1,17 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿// ******************************************************************************
+//  © 2018 Sebastiaan Dammann | damsteen.nl
+// 
+//      Some code is Copyright Microsoft and licensed under the  MIT license.
+//      See: https://github.com/aspnet/JavaScriptServices
+// 
+//  File:           : NodeServicesImpl.cs
+//  Project         : SystemWebpack
+// ******************************************************************************
 
 namespace SystemWebpack.Core.NodeServices.HostingModels {
+    using System;
     using System.Threading;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Default implementation of INodeServices. This is the primary API surface through which developers

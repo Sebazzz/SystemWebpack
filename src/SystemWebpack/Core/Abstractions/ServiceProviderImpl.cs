@@ -1,14 +1,15 @@
 ﻿// ******************************************************************************
 //  © 2018 Sebastiaan Dammann | damsteen.nl
 // 
+//      Some code is Copyright Microsoft and licensed under the  MIT license.
+//      See: https://github.com/aspnet/JavaScriptServices
+// 
 //  File:           : ServiceProviderImpl.cs
 //  Project         : SystemWebpack
 // ******************************************************************************
-
 namespace SystemWebpack.Core.Abstractions {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.Design;
 
     internal class ServiceProviderImpl : IServiceProvider {
         private readonly Dictionary<Type, object> _services;

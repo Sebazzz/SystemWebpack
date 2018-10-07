@@ -5,6 +5,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title></title>
+    
+    <script src="https://unpkg.com/event-source-polyfill@0.0.16/src/eventsource.js"></script>
 </head>
 <body>
     <form id="form1" class="main-container" runat="server">

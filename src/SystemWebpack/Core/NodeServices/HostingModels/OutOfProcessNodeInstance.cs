@@ -1,12 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿// ******************************************************************************
+//  © 2018 Sebastiaan Dammann | damsteen.nl
+// 
+//      Some code is Copyright Microsoft and licensed under the  MIT license.
+//      See: https://github.com/aspnet/JavaScriptServices
+// 
+//  File:           : OutOfProcessNodeInstance.cs
+//  Project         : SystemWebpack
+// ******************************************************************************
 
 namespace SystemWebpack.Core.NodeServices.HostingModels {
+    using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
+    using System.Linq;
     using System.Threading;
+    using System.Threading.Tasks;
     using Abstractions;
     using Util;
 

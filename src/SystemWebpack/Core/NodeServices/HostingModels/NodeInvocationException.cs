@@ -1,10 +1,12 @@
 ﻿// ******************************************************************************
 //  © 2018 Sebastiaan Dammann | damsteen.nl
 // 
+//      Some code is Copyright Microsoft and licensed under the  MIT license.
+//      See: https://github.com/aspnet/JavaScriptServices
+// 
 //  File:           : NodeInvocationException.cs
 //  Project         : SystemWebpack
 // ******************************************************************************
-
 namespace SystemWebpack.Core.NodeServices.HostingModels {
     using System;
 

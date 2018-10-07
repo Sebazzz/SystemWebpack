@@ -1,14 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// ******************************************************************************
+//  © 2018 Sebastiaan Dammann | damsteen.nl
+// 
+//      Some code is Copyright Microsoft and licensed under the  MIT license.
+//      See: https://github.com/aspnet/JavaScriptServices
+// 
+//  File:           : HttpNodeInstance.cs
+//  Project         : SystemWebpack
+// ******************************************************************************
 
 namespace SystemWebpack.Core.NodeServices.HostingModels {
+    using System;
     using System.IO;
     using System.Net.Http;
+    using System.Text;
     using System.Text.RegularExpressions;
     using System.Threading;
+    using System.Threading.Tasks;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
     using Util;
