@@ -7,7 +7,7 @@
 
 namespace SystemWebpack.Core {
     using System;
-    using System.Linq;
+    using System.IO;
     using System.Net;
     using System.Net.Http;
     using System.Threading.Tasks;
@@ -37,8 +37,8 @@ namespace SystemWebpack.Core {
         }
 
         public async Task<bool> Invoke(HttpContext context) {
-            if (context.Request.Path.StartsWithSegments(_pathPrefix) || _pathPrefixIsRoot) {
-                var didProxyRequest = await PerformProxyRequest(context);
+            if (context.Request.Path.StartsWithSegments(this._pathPrefix) || this._pathPrefixIsRoot) {
+                var didProxyRequest = await this.PerformProxyRequest(context).ConfigureAwait(false);
                 if (didProxyRequest) {
                     return true;
                 }
@@ -57,21 +57,24 @@ namespace SystemWebpack.Core {
                 }
             }
 
-            requestMessage.Headers.Host = _options.Host + ":" + _options.Port;
+            requestMessage.Headers.Host = this._options.Host + ":" + this._options.Port;
             var uriString =
-                $"{_options.Scheme}://{_options.Host}:{_options.Port}{context.Request.Path}{context.Request.QueryString}";
+                $"{this._options.Scheme}://{this._options.Host}:{this._options.Port}{context.Request.Path}{context.Request.QueryString}";
             requestMessage.RequestUri = new Uri(uriString);
             requestMessage.Method = new HttpMethod(context.Request.HttpMethod);
 
-            using (
-                var responseMessage = await _httpClient.SendAsync(
+            using (HttpResponseMessage responseMessage = await this._httpClient.SendAsync(
                     requestMessage,
                     HttpCompletionOption.ResponseHeadersRead,
-                    context.Request.TimedOutToken)) {
+                    context.Request.TimedOutToken).ConfigureAwait(false)) {
                 if (responseMessage.StatusCode == HttpStatusCode.NotFound) {
                     // Let some other middleware handle this
                     return false;
                 }
+
+                // We don't want to buffer the output, otherwise hot middleware might never send a complete response
+                context.Response.Buffer = false;
+                context.Response.BufferOutput = false;
 
                 // We can handle this
                 context.Response.StatusCode = (int)responseMessage.StatusCode;
@@ -90,9 +93,16 @@ namespace SystemWebpack.Core {
                 // SendAsync removes chunking from the response. This removes the header so it doesn't expect a chunked response.
                 context.Response.Headers.Remove("transfer-encoding");
 
-                using (var responseStream = await responseMessage.Content.ReadAsStreamAsync()) {
+                // Pre-flush
+#if NET46
+                await context.Response.FlushAsync().ConfigureAwait(false);
+#else
+                context.Response.Flush();
+#endif
+
+                using (Stream responseStream = await responseMessage.Content.ReadAsStreamAsync()) {
                     try {
-                        await responseStream.CopyToAsync(context.Response.OutputStream, DefaultHttpBufferSize, context.Request.TimedOutToken);
+                        await responseStream.CopyToAsync(context.Response.OutputStream, DefaultHttpBufferSize, context.Request.TimedOutToken).ConfigureAwait(false);
                     } catch (OperationCanceledException) {
                         // The CopyToAsync task will be canceled if the client disconnects (e.g., user
                         // closes or refreshes the browser tab). Don't treat this as an error.

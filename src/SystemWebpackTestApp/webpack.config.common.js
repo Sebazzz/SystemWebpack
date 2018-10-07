@@ -11,7 +11,7 @@ module.exports =  {
         filename: '[name]',
         chunkFilename: '[name]',
         path: targetDir,
-        publicPath: '/build/'
+        publicPath: '/'
     },
     resolve: {
         alias: {
