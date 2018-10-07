@@ -24,7 +24,7 @@ Ensure you got the following node packages installed in your web project `packag
 - [`webpack`](https://www.npmjs.com/package/webpack)
 - [`webpack-dev-middleware`](https://www.npmjs.com/package/webpack-dev-middleware)
 - [`webpack-hot-middleware`](https://www.npmjs.com/package/webpack-hot-middleware) if you want to use [Hot Module Replacement](https://webpack.js.org/guides/hot-module-replacement/)
-- [`aspnet-webpack`] - this is an interop package used for communicating with webpack
+- [`aspnet-webpack`](https://www.npmjs.com/package/aspnet-webpack) - this is an interop package used for communicating with webpack
 
 Install the package the package [from NuGet](https://www.nuget.org/packages/SystemWebpack):
 
@@ -81,17 +81,18 @@ Ready to go!
 ## Building the project
 To build the project ensure you have:
 
+- .NET Core SDK
 - .NET Framework 4.5.2 or higher installed
 - Visual Studio with Web Development tools
 - Powershell 4 or higher
 
-To build the project simply run:
+To build the project run:
 
     build
 
-To build the project simply run:
+To package the project run:
 
-    build -Target NuGet-Pack
+    build -Target Pack
 
 ## Contributions
 This project is accepting contributions. Please keep the following guidelines in mind:
