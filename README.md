@@ -7,11 +7,15 @@ This library aims to fix that. This library provides support for the good parts 
 
 ## Features
 
+Works on .NET 4.5.2 and higher.
+
 Support for:
 - Webpack dev middleware
 - Hot module replacement, for more information, view the [webpack docs](https://webpack.js.org/guides/hot-module-replacement/).
 
 Used for development purposes only.
+
+[![Sample project running in Microsoft Edge](nuget/SystemWebpackScreenshot.png)](nuget/SystemWebpackScreenshot.png)
 
 ## Usage
 
