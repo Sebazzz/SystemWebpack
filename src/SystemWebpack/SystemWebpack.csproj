@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net452;net46;net462</TargetFrameworks>
+    <Authors>Sebastiaan Dammann</Authors>
+    <Company>Damsteen.nl</Company>
+    <Product>Webpack dev server support for System.Web</Product>
+    <Description>Allows you to use the Webpack dev server and hot module reloading system in classic System.Web projects.</Description>
+    <Copyright>Sebastiaan Dammann - Damsteen.nl 2018</Copyright>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/Sebazzz/SystemWebpack/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/Sebazzz/SystemWebpack</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/Sebazzz/SystemWebpack/master/nuget/NUnitTestOrdering.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/Sebazzz/SystemWebpack</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <BaseOutputPath>..\..\build\</BaseOutputPath>
+  </PropertyGroup>
+</Project>

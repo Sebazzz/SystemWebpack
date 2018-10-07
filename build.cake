@@ -17,10 +17,28 @@ var dotCoverResultFile = buildDir + File("CoverageResults.dcvr");
 var nuspecPath = File($"./nuget/{baseName}.nuspec");
 var testResultsFile = buildDir + File("SystemWebpack.xml");
 var mainAssemblyVersion = (string) null;
+var nodeEnv = configuration == "Release" ? "production" : "development";
+var testProjectPath = Directory("./src/SystemWebpackTestApp");
 
 //////////////////////////////////////////////////////////////////////
 // TASKS
 //////////////////////////////////////////////////////////////////////
+
+MSBuildSettings SetDefaultMSBuildSettings(MSBuildSettings msBuildSettings) {
+	DirectoryPath vsLocation = VSWhereLatest( new VSWhereLatestSettings {
+		Requires = "Microsoft.Component.MSBuild"
+	});
+	
+	if (vsLocation == null) {
+		msBuildSettings.ToolVersion = MSBuildToolVersion.Default;
+	} else {
+		// Reference: http://cakebuild.net/blog/2017/03/vswhere-and-visual-studio-2017-support
+		FilePath msBuildPathX64 = vsLocation.CombineWithFilePath("./MSBuild/15.0/Bin/amd64/MSBuild.exe");
+		msBuildSettings.ToolPath = msBuildPathX64;
+	}
+	
+	return msBuildSettings;
+}
 
 Task("Clean")
     .Does(() => {
@@ -33,62 +51,117 @@ Task("Rebuild")
 	.IsDependentOn("Clean")
 	.IsDependentOn("Build");
 
+void CheckToolVersion(string name, string executable, string argument, Version wantedVersion) {
+	try {
+		Information($"Checking {name} version...");
+	
+		var processSettings = new ProcessSettings()
+			.WithArguments(args => args.Append("/C").AppendQuoted(executable + " " + argument))
+			.SetRedirectStandardOutput(true)
+		;
+		
+		var process = StartAndReturnProcess("cmd", processSettings);
+		
+		process.WaitForExit();
+		
+		string line = null;
+		foreach (var output in process.GetStandardOutput()) {
+			line = output;
+			Debug(output);
+		}
+		
+		if (String.IsNullOrEmpty(line)) {
+			throw new CakeException("Didn't get any output from " + executable);
+		}
+	
+		Version actualVersion = Version.Parse(line.Trim('v'));
+		
+		Information("Got version {0} - we want at least version {1}", actualVersion, wantedVersion);
+		if (wantedVersion > actualVersion) {
+			throw new CakeException($"{name} version {actualVersion} does not satisfy the requirement of {name}>={wantedVersion}");
+		}
+	} catch (Exception e) when (!(e is CakeException)) {
+		throw new CakeException($"Unable to check {name} version. Please check whether {name} is available in the current %PATH%.", e);
+	}
+}
+	
+Task("Check-Node-Version")
+	.Does(() => {
+	CheckToolVersion("node.js", "node", "--version", new Version(8,9,0));
+});
+
+Task("Check-Yarn-Version")
+	.Does(() => {
+	CheckToolVersion("yarn package manager", "yarn", "--version", new Version(1,5,1) /*Minimum supported on appveyor*/);
+});
+
 Task("Restore-NuGet-Packages")
     .Does(() => {
     NuGetRestore($"./{baseName}.sln");
-    
-    Information("Running NuGet restore for tests");
-    
-    // For tests, we require additional packages
-    NuGetRestore($"./src/{baseName}.Tests/Support/NUnitTestVersions/packages.config", new NuGetRestoreSettings {
-        PackagesDirectory = Directory("./packages") // Required when not restoring solution
-    });
 });
+
+Task("Set-NodeEnvironment")
+	.Does(() => {
+		Information("Setting NODE_ENV to {0}", nodeEnv);
+		
+		System.Environment.SetEnvironmentVariable("NODE_ENV", nodeEnv);
+	});
+
+Task("Restore-Node-Packages")
+	.IsDependentOn("Check-Node-Version")
+	.IsDependentOn("Check-Yarn-Version")
+	.Does(() => {
+	
+	int exitCode;
+	
+	Information("Trying to restore packages using yarn");
+	
+	exitCode = 
+			StartProcess("cmd", new ProcessSettings()
+			.UseWorkingDirectory(testProjectPath)
+			.WithArguments(args => args.Append("/C").AppendQuoted("yarn --production=false --frozen-lockfile --non-interactive")));
+		
+	if (exitCode != 0) {
+		throw new CakeException($"'yarn' returned exit code {exitCode} (0x{exitCode:x2})");
+	}
+});
+
+Task("Run-Webpack")
+	.IsDependentOn("Restore-Node-Packages")
+	.IsDependentOn("Set-NodeEnvironment")
+	.Does(() => {
+		var exitCode = 
+			StartProcess("cmd", new ProcessSettings()
+			.UseWorkingDirectory(testProjectPath)
+			.WithArguments(args => args.Append("/C").AppendQuoted("yarn run build")));
+		
+		if (exitCode != 0) {
+			throw new CakeException($"'yarn run build' returned exit code {exitCode} (0x{exitCode:x2})");
+		}
+	});
 
 Task("Build")
     .IsDependentOn("Restore-NuGet-Packages")
     .Does(() => {
         MSBuild($"./{baseName}.sln", settings => 
-            settings.SetConfiguration(configuration)
-                    .UseToolVersion(MSBuildToolVersion.VS2017)
+					SetDefaultMSBuildSettings(settings)
+					.SetConfiguration(configuration)
                     .SetVerbosity(verbosity)
                     );
 });
+
+Task("Publish")
+	.Description("Internal task - do not use")
+    .IsDependentOn("Rebuild")
+	.IsDependentOn("Run-Webpack");
 
 Task("Test")
     .IsDependentOn("Build")
 	.Description("Run all unit tests - under code coverage")
     .Does((ctx) => {
-        //DotCoverCover(
-		//	tool => {
-				ctx.NUnit3("./build/" + configuration + "/**/*.Tests.dll", new NUnit3Settings {
-					NoHeader = true,
-					NoColor = false,
-					Verbose = true,
-					Results = testResultsFile,
-					Full = true,
-					ResultFormat = /*AppVeyor.IsRunningOnAppVeyor ? "AppVeyor" : */"nunit3"
-				});
-		//	},
-		//	dotCoverResultFile,
-		//	new DotCoverCoverSettings () 
-		//		.WithFilter($"+:{baseName}")
-		//		.WithFilter("-:*.Tests")
-		//		.WithAttributeFilter("-:System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute")
-        //);
-});
-
-Task("NuGet-Test")
-	.IsDependentOn("Rebuild")
-	.Description("Run all unit tests in preperation nupack")
-	.Does(() => {
-		NUnit3("./build/" + configuration + "/**/*.Tests.dll", new NUnit3Settings {
+		ctx.NUnit3("./build/" + configuration + "/**/*.Tests.dll", new NUnit3Settings {
 			NoHeader = true,
-			NoColor = false,
-			Verbose = true,
-			Results = testResultsFile,
-			Full = true,
-			ResultFormat = /*AppVeyor.IsRunningOnAppVeyor ? "AppVeyor" : */"nunit3"
+			NoColor = false
 		});
 });
 
@@ -108,17 +181,15 @@ Task("NuGet-Get-Assembly-Version")
 	});
 
 Task("NuGet-Pack")
-	.IsDependentOn("Build")
+	.IsDependentOn("Rebuild")
 	.IsDependentOn("NuGet-Get-Assembly-Version")
 	.Description("Packs up a NuGet package")
 	.Does(() => {
-		NuGetPack(
-			nuspecPath,
-			new NuGetPackSettings() {
-				OutputDirectory = buildDir,
-				Version = mainAssemblyVersion
-			}
-		);
+		MSBuild($"./{baseName}.sln", settings => 
+					SetDefaultMSBuildSettings(settings)
+                    .SetVerbosity(verbosity)
+					.WithTarget("Pack")
+                    );
 	});
 	
 Task("AppVeyor-Test")

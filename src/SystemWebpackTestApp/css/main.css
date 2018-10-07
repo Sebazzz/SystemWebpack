@@ -1,0 +1,23 @@
+﻿body {
+    font-family: Arial, Verdana, Tahoma;
+    font-size: 14px;
+    text-align: center;
+    padding: 1rem;
+}
+
+button {
+    padding: 0.5rem 4rem;
+}
+
+.main-container {
+    border: 2px dotted #666;
+    padding: 5rem;
+    display: inline-block;
+}
+
+h1 small {
+    display: block;
+    font-weight: normal;
+    font-size: 12px;
+    margin-top: 0.5em;
+}

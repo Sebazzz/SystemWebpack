@@ -74,7 +74,7 @@ function MD5HashFile([string] $filePath)
     }
 }
 
-if ($ScriptArgs[1] -imatch "^(-?-?|\/)(help|\?)$") {
+if ($ScriptArgs -ne $null -and $ScriptArgs[1] -imatch "^(-?-?|\/)(help|\?)$") {
 	Write-Host "Going to show the task descriptions... one moment please..." -ForegroundColor Green
 	$ScriptArgs[1] = "--showdescription"
 	$Verbosity = "Quiet"
