@@ -114,10 +114,6 @@ namespace SystemWebpack.Core {
             }
         }
 
-        public WebpackApplication() {
-            
-        }
-
         private void RegisterProxyToLocalWebpackDevMiddleware(string publicPath, int proxyToPort, TimeSpan requestTimeout) {
             // Note that this is hardcoded to make requests to "localhost" regardless of the hostname of the
             // server as far as the client is concerned. This is because ConditionalProxyMiddlewareOptions is
