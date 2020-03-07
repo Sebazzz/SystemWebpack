@@ -9,15 +9,22 @@
     <Copyright>Sebastiaan Dammann - Damsteen.nl 2018</Copyright>
     <Title>Webpack dev server and hot module replacement support for System.Web / ASP.NET projects</Title>
     <IncludeSource>True</IncludeSource>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/Sebazzz/SystemWebpack/master/LICENSE</PackageLicenseUrl>
+    <SolutionRootDir>$(MSBuildThisFileDirectory)..\..\</SolutionRootDir>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/Sebazzz/SystemWebpack</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/Sebazzz/SystemWebpack/master/nuget/SystemWebpack.png</PackageIconUrl>
+    <PackageIcon>SystemWebpack.png</PackageIcon>
     <RepositoryUrl>https://github.com/Sebazzz/SystemWebpack</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <BaseOutputPath>..\..\build\</BaseOutputPath>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Version>1.0.0-beta2</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(SolutionRootDir)LICENSE" Pack="true" PackagePath="\"/>
+    <None Include="$(SolutionRootDir)nuget\SystemWebpack.png" Pack="true" PackagePath="\"/>
+  </ItemGroup>
 
   <PropertyGroup>
     <!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
