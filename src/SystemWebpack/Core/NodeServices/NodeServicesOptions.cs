@@ -33,28 +33,28 @@ namespace SystemWebpack.Core.NodeServices {
                 throw new ArgumentNullException(nameof(serviceProvider));
             }
 
-            EnvironmentVariables = new Dictionary<string, string>();
-            InvocationTimeoutMilliseconds = DefaultInvocationTimeoutMilliseconds;
-            WatchFileExtensions = (string[])DefaultWatchFileExtensions.Clone();
+            this.EnvironmentVariables = new Dictionary<string, string>();
+            this.InvocationTimeoutMilliseconds = DefaultInvocationTimeoutMilliseconds;
+            this.WatchFileExtensions = (string[])DefaultWatchFileExtensions.Clone();
 
             var hostEnv = serviceProvider.GetService<IHostingEnvironment>();
             if (hostEnv != null) {
                 // In an ASP.NET environment, we can use the IHostingEnvironment data to auto-populate a few
                 // things that you'd otherwise have to specify manually
-                ProjectPath = hostEnv.ContentRootPath;
-                EnvironmentVariables["NODE_ENV"] = hostEnv.IsDevelopment() ? "development" : "production"; // De-facto standard values for Node
+                this.ProjectPath = hostEnv.ContentRootPath;
+                this.EnvironmentVariables["NODE_ENV"] = hostEnv.IsDevelopment() ? "development" : "production"; // De-facto standard values for Node
             } else {
-                ProjectPath = Directory.GetCurrentDirectory();
+                this.ProjectPath = Directory.GetCurrentDirectory();
             }
 
             var applicationLifetime = serviceProvider.GetService<IApplicationLifetime>();
             if (applicationLifetime != null) {
-                ApplicationStoppingToken = applicationLifetime.ApplicationStopping;
+                this.ApplicationStoppingToken = applicationLifetime.ApplicationStopping;
             }
 
             // If the DI system gives us a logger, use it. Otherwise, set up a default one.
             var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
-            NodeInstanceOutputLogger = loggerFactory.CreateLogger(LogCategoryName);
+            this.NodeInstanceOutputLogger = loggerFactory.CreateLogger(LogCategoryName);
 
             // By default, we use this package's built-in out-of-process-via-HTTP hosting/transport
             this.UseHttpHosting();

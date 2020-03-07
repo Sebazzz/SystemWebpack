@@ -138,7 +138,7 @@ namespace SystemWebpack.Core {
         private Task HandleRequest(object sender, EventArgs eventArgs) {
             HttpApplication app = (HttpApplication) sender;
 
-            return HandleRequestCore(app);
+            return this.HandleRequestCore(app);
         }
 
         private async Task HandleRequestCore(HttpApplication app) {

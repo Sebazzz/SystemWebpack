@@ -33,28 +33,28 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
         private Exception _instanceDelayedDisposalException;
 
         internal NodeServicesImpl(Func<INodeInstance> nodeInstanceFactory) {
-            _nodeInstanceFactory = nodeInstanceFactory;
+            this._nodeInstanceFactory = nodeInstanceFactory;
         }
 
         public Task<T> InvokeAsync<T>(string moduleName, params object[] args) {
-            return InvokeExportAsync<T>(moduleName, null, args);
+            return this.InvokeExportAsync<T>(moduleName, null, args);
         }
 
         public Task<T> InvokeAsync<T>(CancellationToken cancellationToken, string moduleName, params object[] args) {
-            return InvokeExportAsync<T>(cancellationToken, moduleName, null, args);
+            return this.InvokeExportAsync<T>(cancellationToken, moduleName, null, args);
         }
 
         public Task<T> InvokeExportAsync<T>(string moduleName, string exportedFunctionName, params object[] args) {
-            return InvokeExportWithPossibleRetryAsync<T>(moduleName, exportedFunctionName, args, /* allowRetry */ true, CancellationToken.None);
+            return this.InvokeExportWithPossibleRetryAsync<T>(moduleName, exportedFunctionName, args, /* allowRetry */ true, CancellationToken.None);
         }
 
         public Task<T> InvokeExportAsync<T>(CancellationToken cancellationToken, string moduleName, string exportedFunctionName, params object[] args) {
-            return InvokeExportWithPossibleRetryAsync<T>(moduleName, exportedFunctionName, args, /* allowRetry */ true, cancellationToken);
+            return this.InvokeExportWithPossibleRetryAsync<T>(moduleName, exportedFunctionName, args, /* allowRetry */ true, cancellationToken);
         }
 
         private async Task<T> InvokeExportWithPossibleRetryAsync<T>(string moduleName, string exportedFunctionName, object[] args, bool allowRetry, CancellationToken cancellationToken) {
-            ThrowAnyOutstandingDelayedDisposalException();
-            var nodeInstance = GetOrCreateCurrentNodeInstance();
+            this.ThrowAnyOutstandingDelayedDisposalException();
+            var nodeInstance = this.GetOrCreateCurrentNodeInstance();
 
             try {
                 return await nodeInstance.InvokeExportAsync<T>(cancellationToken, moduleName, exportedFunctionName, args);
@@ -65,18 +65,18 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
                     // Perform the retry after clearing away the old instance
                     // Since we disposal is delayed even though the node instance is replaced immediately, this produces the
                     // "connection draining" feature whereby in-flight RPC calls are given a certain period to complete.
-                    lock (_currentNodeInstanceAccessLock) {
-                        if (_currentNodeInstance == nodeInstance) {
+                    lock (this._currentNodeInstanceAccessLock) {
+                        if (this._currentNodeInstance == nodeInstance) {
                             var disposalDelay = ex.AllowConnectionDraining ? ConnectionDrainingTimespan : TimeSpan.Zero;
-                            DisposeNodeInstance(_currentNodeInstance, disposalDelay);
-                            _currentNodeInstance = null;
+                            this.DisposeNodeInstance(this._currentNodeInstance, disposalDelay);
+                            this._currentNodeInstance = null;
                         }
                     }
 
                     // One the next call, don't allow retries, because we could get into an infinite retry loop, or a long retry
                     // loop that masks an underlying problem. A newly-created Node instance should be able to accept invocations,
                     // or something more serious must be wrong.
-                    return await InvokeExportWithPossibleRetryAsync<T>(moduleName, exportedFunctionName, args, /* allowRetry */ false, cancellationToken);
+                    return await this.InvokeExportWithPossibleRetryAsync<T>(moduleName, exportedFunctionName, args, /* allowRetry */ false, cancellationToken);
                 } else {
                     throw;
                 }
@@ -84,10 +84,10 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
         }
 
         public void Dispose() {
-            lock (_currentNodeInstanceAccessLock) {
-                if (_currentNodeInstance != null) {
-                    DisposeNodeInstance(_currentNodeInstance, delay: TimeSpan.Zero);
-                    _currentNodeInstance = null;
+            lock (this._currentNodeInstanceAccessLock) {
+                if (this._currentNodeInstance != null) {
+                    this.DisposeNodeInstance(this._currentNodeInstance, delay: TimeSpan.Zero);
+                    this._currentNodeInstance = null;
                 }
             }
         }
@@ -104,16 +104,16 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
                         // Nothing's waiting for the delayed disposal task, so any exceptions in it would
                         // by default just get ignored. To make these discoverable, capture them here so
                         // they can be rethrown to the next caller to InvokeExportAsync.
-                        _instanceDelayedDisposalException = ex;
+                        this._instanceDelayedDisposalException = ex;
                     }
                 });
             }
         }
 
         private void ThrowAnyOutstandingDelayedDisposalException() {
-            if (_instanceDelayedDisposalException != null) {
-                var ex = _instanceDelayedDisposalException;
-                _instanceDelayedDisposalException = null;
+            if (this._instanceDelayedDisposalException != null) {
+                var ex = this._instanceDelayedDisposalException;
+                this._instanceDelayedDisposalException = null;
                 throw new AggregateException(
                     "A previous attempt to dispose a Node instance failed. See InnerException for details.",
                     ex);
@@ -121,12 +121,12 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
         }
 
         private INodeInstance GetOrCreateCurrentNodeInstance() {
-            var instance = _currentNodeInstance;
+            var instance = this._currentNodeInstance;
             if (instance == null) {
-                lock (_currentNodeInstanceAccessLock) {
-                    instance = _currentNodeInstance;
+                lock (this._currentNodeInstanceAccessLock) {
+                    instance = this._currentNodeInstance;
                     if (instance == null) {
-                        instance = _currentNodeInstance = CreateNewNodeInstance();
+                        instance = this._currentNodeInstance = this.CreateNewNodeInstance();
                     }
                 }
             }
@@ -135,7 +135,7 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
         }
 
         private INodeInstance CreateNewNodeInstance() {
-            return _nodeInstanceFactory();
+            return this._nodeInstanceFactory();
         }
     }
 }

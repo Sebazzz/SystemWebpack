@@ -75,17 +75,17 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
                 throw new ArgumentNullException(nameof(nodeOutputLogger));
             }
 
-            OutputLogger = nodeOutputLogger;
-            _entryPointScript = new StringAsTempFile(entryPointScript, applicationStoppingToken);
-            _invocationTimeoutMilliseconds = invocationTimeoutMilliseconds;
-            _launchWithDebugging = launchWithDebugging;
+            this.OutputLogger = nodeOutputLogger;
+            this._entryPointScript = new StringAsTempFile(entryPointScript, applicationStoppingToken);
+            this._invocationTimeoutMilliseconds = invocationTimeoutMilliseconds;
+            this._launchWithDebugging = launchWithDebugging;
 
-            var startInfo = PrepareNodeProcessStartInfo(_entryPointScript.FileName, projectPath, commandLineArguments,
-                environmentVars, _launchWithDebugging, debuggingPort);
-            _nodeProcess = LaunchNodeProcess(startInfo);
-            _watchFileExtensions = watchFileExtensions;
-            _fileSystemWatcher = BeginFileWatcher(projectPath);
-            ConnectToInputOutputStreams();
+            var startInfo = this.PrepareNodeProcessStartInfo(this._entryPointScript.FileName, projectPath, commandLineArguments,
+                environmentVars, this._launchWithDebugging, debuggingPort);
+            this._nodeProcess = LaunchNodeProcess(startInfo);
+            this._watchFileExtensions = watchFileExtensions;
+            this._fileSystemWatcher = this.BeginFileWatcher(projectPath);
+            this.ConnectToInputOutputStreams();
         }
 
         /// <summary>
@@ -99,20 +99,20 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
         /// <returns>A <see cref="Task{TResult}"/> representing the completion of the RPC call.</returns>
         public async Task<T> InvokeExportAsync<T>(
             CancellationToken cancellationToken, string moduleName, string exportNameOrNull, params object[] args) {
-            if (_nodeProcess.HasExited || _nodeProcessNeedsRestart) {
+            if (this._nodeProcess.HasExited || this._nodeProcessNeedsRestart) {
                 // This special kind of exception triggers a transparent retry - NodeServicesImpl will launch
                 // a new Node instance and pass the invocation to that one instead.
                 // Note that if the Node process is listening for debugger connections, then we need it to shut
                 // down immediately and not stay open for connection draining (because if it did, the new Node
                 // instance wouldn't able to start, because the old one would still hold the debugging port).
-                var message = _nodeProcess.HasExited
+                var message = this._nodeProcess.HasExited
                     ? "The Node process has exited"
                     : "The Node process needs to restart";
                 throw new NodeInvocationException(
                     message,
                     details: null,
                     nodeInstanceUnavailable: true,
-                    allowConnectionDraining: !_launchWithDebugging);
+                    allowConnectionDraining: !this._launchWithDebugging);
             }
 
             // Construct a new cancellation token that combines the supplied token with the configured invocation
@@ -120,8 +120,8 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
             // but that's not really a major use case, since timeouts are enabled by default.
             using (var timeoutSource = new CancellationTokenSource())
             using (var combinedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutSource.Token)) {
-                if (_invocationTimeoutMilliseconds > 0) {
-                    timeoutSource.CancelAfter(_invocationTimeoutMilliseconds);
+                if (this._invocationTimeoutMilliseconds > 0) {
+                    timeoutSource.CancelAfter(this._invocationTimeoutMilliseconds);
                 }
 
                 // By overwriting the supplied cancellation token, we ensure that it isn't accidentally used
@@ -133,10 +133,10 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
                     // Wait until the connection is established. This will throw if the connection fails to initialize,
                     // or if cancellation is requested first. Note that we can't really cancel the "establishing connection"
                     // task because that's shared with all callers, but we can stop waiting for it if this call is cancelled.
-                    await _connectionIsReadySource.Task.OrThrowOnCancellation(cancellationToken);
+                    await this._connectionIsReadySource.Task.OrThrowOnCancellation(cancellationToken);
                     connectionDidSucceed = true;
 
-                    return await InvokeExportAsync<T>(new NodeInvocationInfo {
+                    return await this.InvokeExportAsync<T>(new NodeInvocationInfo {
                         ModuleName = moduleName,
                         ExportedFunctionName = exportNameOrNull,
                         Args = args
@@ -150,7 +150,7 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
                             // This is very unlikely, but for debugging, it's still useful to differentiate it from the
                             // case below.
                             throw new NodeInvocationException(
-                                $"Attempt to connect to Node timed out after {_invocationTimeoutMilliseconds}ms.",
+                                $"Attempt to connect to Node timed out after {this._invocationTimeoutMilliseconds}ms.",
                                 string.Empty);
                         } else {
                             // Developers encounter this fairly often (if their Node code fails without invoking the callback,
@@ -158,7 +158,7 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
                             // as a TaskCanceledException, but this led to a lot of issue reports. Now we throw the following
                             // descriptive error.
                             throw new NodeInvocationException(
-                                $"The Node invocation timed out after {_invocationTimeoutMilliseconds}ms.",
+                                $"The Node invocation timed out after {this._invocationTimeoutMilliseconds}ms.",
                                 $"You can change the timeout duration by setting the {NodeServicesOptions.TimeoutConfigPropertyName} "
                                 + $"property on {nameof(NodeServicesOptions)}.\n\n"
                                 + "The first debugging step is to ensure that your Node.js function always invokes the supplied "
@@ -177,7 +177,7 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
         /// Disposes this instance.
         /// </summary>
         public void Dispose() {
-            Dispose(true);
+            this.Dispose(true);
             GC.SuppressFinalize(this);
         }
 
@@ -209,7 +209,7 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
             string debuggingArgs;
             if (launchWithDebugging) {
                 debuggingArgs = debuggingPort != default(int) ? $"--inspect={debuggingPort} " : "--inspect ";
-                _nodeDebuggingPort = debuggingPort;
+                this._nodeDebuggingPort = debuggingPort;
             } else {
                 debuggingArgs = string.Empty;
             }
@@ -251,7 +251,7 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
         /// </summary>
         /// <param name="outputData">The line emitted to the Node.js process's stdout.</param>
         protected virtual void OnOutputDataReceived(string outputData) {
-            OutputLogger.LogInformation(outputData);
+            this.OutputLogger.LogInformation(outputData);
         }
 
         /// <summary>
@@ -259,7 +259,7 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
         /// </summary>
         /// <param name="errorData">The line emitted to the Node.js process's stderr.</param>
         protected virtual void OnErrorDataReceived(string errorData) {
-            OutputLogger.LogError(errorData);
+            this.OutputLogger.LogError(errorData);
         }
 
         /// <summary>
@@ -267,26 +267,26 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
         /// </summary>
         /// <param name="disposing">True if the object is disposing or false if it is finalizing.</param>
         protected virtual void Dispose(bool disposing) {
-            if (!_disposed) {
+            if (!this._disposed) {
                 if (disposing) {
-                    _entryPointScript.Dispose();
-                    EnsureFileSystemWatcherIsDisposed();
+                    this._entryPointScript.Dispose();
+                    this.EnsureFileSystemWatcherIsDisposed();
                 }
 
                 // Make sure the Node process is finished
                 // TODO: Is there a more graceful way to end it? Or does this still let it perform any cleanup?
-                if (_nodeProcess != null && !_nodeProcess.HasExited) {
-                    _nodeProcess.Kill();
+                if (this._nodeProcess != null && !this._nodeProcess.HasExited) {
+                    this._nodeProcess.Kill();
                 }
 
-                _disposed = true;
+                this._disposed = true;
             }
         }
 
         private void EnsureFileSystemWatcherIsDisposed() {
-            if (_fileSystemWatcher != null) {
-                _fileSystemWatcher.Dispose();
-                _fileSystemWatcher = null;
+            if (this._fileSystemWatcher != null) {
+                this._fileSystemWatcher.Dispose();
+                this._fileSystemWatcher = null;
             }
         }
 
@@ -330,27 +330,27 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
         private void ConnectToInputOutputStreams() {
             var initializationIsCompleted = false;
 
-            _nodeProcess.OutputDataReceived += (sender, evt) => {
+            this._nodeProcess.OutputDataReceived += (sender, evt) => {
                 if (evt.Data == ConnectionEstablishedMessage && !initializationIsCompleted) {
-                    _connectionIsReadySource.SetResult(null);
+                    this._connectionIsReadySource.SetResult(null);
                     initializationIsCompleted = true;
                 } else if (evt.Data != null) {
-                    OnOutputDataReceived(UnencodeNewlines(evt.Data));
+                    this.OnOutputDataReceived(UnencodeNewlines(evt.Data));
                 }
             };
 
-            _nodeProcess.ErrorDataReceived += (sender, evt) => {
+            this._nodeProcess.ErrorDataReceived += (sender, evt) => {
                 if (evt.Data != null) {
-                    if (_launchWithDebugging && IsDebuggerMessage(evt.Data)) {
-                        OutputLogger.LogWarning(evt.Data);
+                    if (this._launchWithDebugging && IsDebuggerMessage(evt.Data)) {
+                        this.OutputLogger.LogWarning(evt.Data);
                     } else {
-                        OnErrorDataReceived(UnencodeNewlines(evt.Data));
+                        this.OnErrorDataReceived(UnencodeNewlines(evt.Data));
                     }
                 }
             };
 
-            _nodeProcess.BeginOutputReadLine();
-            _nodeProcess.BeginErrorReadLine();
+            this._nodeProcess.BeginOutputReadLine();
+            this._nodeProcess.BeginErrorReadLine();
         }
 
         private static bool IsDebuggerMessage(string message) {
@@ -363,7 +363,7 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
         }
 
         private FileSystemWatcher BeginFileWatcher(string rootDir) {
-            if (_watchFileExtensions == null || _watchFileExtensions.Length == 0) {
+            if (this._watchFileExtensions == null || this._watchFileExtensions.Length == 0) {
                 // Nothing to watch
                 return null;
             }
@@ -372,23 +372,23 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
                 IncludeSubdirectories = true,
                 NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName
             };
-            watcher.Changed += OnFileChanged;
-            watcher.Created += OnFileChanged;
-            watcher.Deleted += OnFileChanged;
-            watcher.Renamed += OnFileRenamed;
+            watcher.Changed += this.OnFileChanged;
+            watcher.Created += this.OnFileChanged;
+            watcher.Deleted += this.OnFileChanged;
+            watcher.Renamed += this.OnFileRenamed;
             watcher.EnableRaisingEvents = true;
             return watcher;
         }
 
         private void OnFileChanged(object source, FileSystemEventArgs e) {
-            if (IsFilenameBeingWatched(e.FullPath)) {
-                RestartDueToFileChange(e.FullPath);
+            if (this.IsFilenameBeingWatched(e.FullPath)) {
+                this.RestartDueToFileChange(e.FullPath);
             }
         }
 
         private void OnFileRenamed(object source, RenamedEventArgs e) {
-            if (IsFilenameBeingWatched(e.OldFullPath) || IsFilenameBeingWatched(e.FullPath)) {
-                RestartDueToFileChange(e.OldFullPath);
+            if (this.IsFilenameBeingWatched(e.OldFullPath) || this.IsFilenameBeingWatched(e.FullPath)) {
+                this.RestartDueToFileChange(e.OldFullPath);
             }
         }
 
@@ -397,26 +397,26 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
                 return false;
             } else {
                 var actualExtension = Path.GetExtension(fullPath) ?? string.Empty;
-                return _watchFileExtensions.Any(actualExtension.Equals);
+                return this._watchFileExtensions.Any(actualExtension.Equals);
             }
         }
 
         private void RestartDueToFileChange(string fullPath) {
-            OutputLogger.LogInformation($"Node will restart because file changed: {fullPath}");
+            this.OutputLogger.LogInformation($"Node will restart because file changed: {fullPath}");
 
-            _nodeProcessNeedsRestart = true;
+            this._nodeProcessNeedsRestart = true;
 
             // There's no need to watch for any more changes, since we're already restarting, and if the
             // restart takes some time (e.g., due to connection draining), we could end up getting duplicate
             // notifications.
-            EnsureFileSystemWatcherIsDisposed();
+            this.EnsureFileSystemWatcherIsDisposed();
         }
 
         /// <summary>
         /// Implements the finalization part of the IDisposable pattern by calling Dispose(false).
         /// </summary>
         ~OutOfProcessNodeInstance() {
-            Dispose(false);
+            this.Dispose(false);
         }
     }
 }

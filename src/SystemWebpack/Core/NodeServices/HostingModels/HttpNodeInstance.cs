@@ -56,8 +56,8 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
                 options.InvocationTimeoutMilliseconds,
                 options.LaunchWithDebugging,
                 options.DebuggingPort) {
-            _client = new HttpClient();
-            _client.Timeout = TimeSpan.FromMilliseconds(options.InvocationTimeoutMilliseconds + 1000);
+            this._client = new HttpClient();
+            this._client.Timeout = TimeSpan.FromMilliseconds(options.InvocationTimeoutMilliseconds + 1000);
         }
 
         private static string MakeCommandLineOptions(int port) {
@@ -68,7 +68,7 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
             NodeInvocationInfo invocationInfo, CancellationToken cancellationToken) {
             var payloadJson = JsonConvert.SerializeObject(invocationInfo, jsonSerializerSettings);
             var payload = new StringContent(payloadJson, Encoding.UTF8, "application/json");
-            var response = await _client.PostAsync(_endpoint, payload, cancellationToken);
+            var response = await this._client.PostAsync(this._endpoint, payload, cancellationToken);
 
             if (!response.IsSuccessStatusCode) {
                 // Unfortunately there's no true way to cancel ReadAsStringAsync calls, hence AbandonIfCancelled
@@ -115,14 +115,14 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
             // store the IP (IPv4/IPv6) and port number
             // so we can use it when making HTTP requests. The child process will always send
             // one of these messages before it sends a "ready for connections" message.
-            var match = string.IsNullOrEmpty(_endpoint) ? EndpointMessageRegex.Match(outputData) : null;
+            var match = string.IsNullOrEmpty(this._endpoint) ? EndpointMessageRegex.Match(outputData) : null;
             if (match != null && match.Success) {
                 var port = int.Parse(match.Groups[2].Captures[0].Value);
                 var resolvedIpAddress = match.Groups[1].Captures[0].Value;
 
                 //IPv6 must be wrapped with [] brackets
                 resolvedIpAddress = resolvedIpAddress == "::1" ? $"[{resolvedIpAddress}]" : resolvedIpAddress;
-                _endpoint = $"http://{resolvedIpAddress}:{port}";
+                this._endpoint = $"http://{resolvedIpAddress}:{port}";
             } else {
                 base.OnOutputDataReceived(outputData);
             }
@@ -131,12 +131,12 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
         protected override void Dispose(bool disposing) {
             base.Dispose(disposing);
 
-            if (!_disposed) {
+            if (!this._disposed) {
                 if (disposing) {
-                    _client.Dispose();
+                    this._client.Dispose();
                 }
 
-                _disposed = true;
+                this._disposed = true;
             }
         }
 
