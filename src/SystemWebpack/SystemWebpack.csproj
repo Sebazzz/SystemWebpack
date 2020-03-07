@@ -16,7 +16,7 @@
     <RepositoryType>git</RepositoryType>
     <BaseOutputPath>..\..\build\</BaseOutputPath>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>1.0.0-beta1</Version>
+    <Version>1.0.0-beta2</Version>
   </PropertyGroup>
 
   <PropertyGroup>
