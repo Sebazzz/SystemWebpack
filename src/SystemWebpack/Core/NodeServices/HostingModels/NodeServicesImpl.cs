@@ -8,6 +8,8 @@
 //  Project         : SystemWebpack
 // ******************************************************************************
 
+using System.Web.Hosting;
+
 namespace SystemWebpack.Core.NodeServices.HostingModels {
     using System;
     using System.Threading;
@@ -25,7 +27,7 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
     /// analogous to the "connection draining" feature implemented by HTTP load balancers.
     /// </summary>
     /// <seealso cref="INodeServices" />
-    internal class NodeServicesImpl : INodeServices {
+    internal class NodeServicesImpl : INodeServices, IRegisteredObject {
         private static TimeSpan ConnectionDrainingTimespan = TimeSpan.FromSeconds(15);
         private Func<INodeInstance> _nodeInstanceFactory;
         private INodeInstance _currentNodeInstance;
@@ -34,6 +36,8 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
 
         internal NodeServicesImpl(Func<INodeInstance> nodeInstanceFactory) {
             this._nodeInstanceFactory = nodeInstanceFactory;
+
+            HostingEnvironment.RegisterObject(this);
         }
 
         public Task<T> InvokeAsync<T>(string moduleName, params object[] args) {
@@ -89,6 +93,8 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
                     this.DisposeNodeInstance(this._currentNodeInstance, delay: TimeSpan.Zero);
                     this._currentNodeInstance = null;
                 }
+
+                HostingEnvironment.UnregisterObject(this);
             }
         }
 
@@ -136,6 +142,10 @@ namespace SystemWebpack.Core.NodeServices.HostingModels {
 
         private INodeInstance CreateNewNodeInstance() {
             return this._nodeInstanceFactory();
+        }
+
+        public void Stop(bool immediate) {
+            this.Dispose();
         }
     }
 }
