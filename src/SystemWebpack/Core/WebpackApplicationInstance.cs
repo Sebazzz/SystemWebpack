@@ -56,7 +56,7 @@ namespace SystemWebpack.Core {
                     throw new InvalidOperationException($"{typeof(WebpackHttpModule)}.{nameof(WebpackHttpModule.Options)} is null");
                 }
 
-                // Unlike other consumers of NodeServices, WebpackDevMiddleware dosen't share Node instances, nor does it
+                // Unlike other consumers of NodeServices, WebpackDevMiddleware doesn't share Node instances, nor does it
                 // use your DI configuration. It's important for WebpackDevMiddleware to have its own private Node instance
                 // because it must *not* restart when files change (if it did, you'd lose all the benefits of Webpack
                 // middleware). And since this is a dev-time-only feature, it doesn't matter if the default transport isn't
